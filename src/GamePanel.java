@@ -31,7 +31,6 @@ public class GamePanel extends JPanel implements KeyListener{
 	
 	private JButton startButton = new JButton("Start game");	//Bouton "Start"
 	private JButton tutoButton = new JButton("Tutorial");		//Bouton "Tutorial"
-	private JButton homeButton = new JButton("Home");;			//Bouton "Menu Principal"
 	private JButton player2Button = new JButton("2 Players");	//Bouton "2 players"
 	private JButton player3Button = new JButton("3 Players");	//Bouton "3 players"
 	private JButton player4Button = new JButton("4 Players");	//Bouton "4 players"
@@ -39,16 +38,15 @@ public class GamePanel extends JPanel implements KeyListener{
 	
 	private JLabel introLabel = new JLabel("Take up the challenge and play !");
 	private JLabel playerLabel = new JLabel("Choose the number of player");
-	private JLabel nameLabel = new JLabel("     Enter the players name");
+	private JLabel nameLabel = new JLabel("Enter the players name");
 	
-	private JTextField name1Field = new JTextField("Name player1");	//Zone pour le premier nom
-	private JTextField name2Field = new JTextField("Name player2");	//et ainsi de suite
-	private JTextField name3Field = new JTextField("Name player3");	
-	private JTextField name4Field = new JTextField("Name player4");
-	
+	private ArrayList<JTextField> nameFields = new ArrayList<JTextField>();	//Zone pour les noms
 	private ArrayList<String> nameList = new ArrayList<String>();
-	 
-	boolean begin = false;
+	
+	private int xelem;
+	private int yelem;
+	private Element elem;
+	private int begin = 0;	// ces deux suivants servent à paint
 	
 	public GamePanel(){
 		this.initialize();
@@ -57,31 +55,6 @@ public class GamePanel extends JPanel implements KeyListener{
 	}
 
 	public void initialize() {
-		
-		//Pour effacer le texte dans le champ
-		name1Field.addFocusListener(new FocusAdapter() {
-			public void focusGained(FocusEvent e){
-				name1Field.setText("");
-			}
-		});
-		
-		name2Field.addFocusListener(new FocusAdapter() {
-			public void focusGained(FocusEvent e){
-				name2Field.setText("");
-			}
-		});
-		
-		name3Field.addFocusListener(new FocusAdapter() {
-			public void focusGained(FocusEvent e){
-				name3Field.setText("");
-			}
-		});
-		
-		name4Field.addFocusListener(new FocusAdapter() {
-			public void focusGained(FocusEvent e){
-				name4Field.setText("");
-			}
-		});
 		
 		//On sectionne le panel pour avoir 3 lignes et 1 colonne
 		subPanel.setLayout(new GridLayout(3,1));
@@ -93,7 +66,6 @@ public class GamePanel extends JPanel implements KeyListener{
 		player3Button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		player4Button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		validateButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		homeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		
 		//On prépare le premier affichage
 		subPanel.add(introLabel);
@@ -106,7 +78,6 @@ public class GamePanel extends JPanel implements KeyListener{
 		
 		//Définissions des boutons
 		startButton.addActionListener(new StartActionListener(this,subPanel));
-		homeButton.addActionListener(new HomeActionListener(this,subPanel));
 		player2Button.addActionListener(new PlayerActionListener(this,subPanel,2));
 		player3Button.addActionListener(new PlayerActionListener(this,subPanel,3));
 		player4Button.addActionListener(new PlayerActionListener(this,subPanel,4));
@@ -155,8 +126,6 @@ public class GamePanel extends JPanel implements KeyListener{
 //BOMBAAA
 	if(e.getKeyCode()==KeyEvent.VK_SPACE)
 		board.setElemInBoard(x1,y1,new Bomb(x1,y1,board));	// Rajout de pan en argument
-		update();
-		
 		// Joueur 1
 		int x2 = playerList.get(1).getPosx();
 		int y2 = playerList.get(1).getPosy();
@@ -193,7 +162,6 @@ public class GamePanel extends JPanel implements KeyListener{
 	//BOMBAAA
 		if(e.getKeyCode()==KeyEvent.VK_A)
 			board.setElemInBoard(x2,y2,new Bomb(x2,y2, board));	// Rajout de pan en argument
-			update();
 		}
 
 //Check si pas de collision
@@ -211,27 +179,16 @@ public void keyReleased(KeyEvent e){}
 //Par ex : CTRL + touch
 public void keyTyped(KeyEvent e){}
 	
-	public void returnHome(JPanel subPanel){
-		//Retour au menu principal
-		subPanel.removeAll();
-		subPanel.setLayout(new GridLayout(3,1));
-		subPanel.add(introLabel);
-		subPanel.add(startButton);
-		subPanel.add(tutoButton);
-		subPanel.revalidate();
-	}
-	
 	public void playerChooseWindow(JPanel subPanel){
 		//Fait apparaître la page 2 (choix du nombre de joueur)
 		subPanel.removeAll();
-		subPanel.setLayout(new GridLayout(5,1));
+		subPanel.setLayout(new GridLayout(4,1));
 		
 		subPanel.add(playerLabel);
 		subPanel.add(player2Button);
 		subPanel.add(player3Button);
 		subPanel.add(player4Button);
-		subPanel.add(homeButton);
-	
+
 		subPanel.revalidate();
 	}
 	
@@ -241,40 +198,30 @@ public void keyTyped(KeyEvent e){}
 		subPanel.setLayout(new GridLayout(2*playerNumber + 2,1));
 		
 		subPanel.add(nameLabel);
+		// Création des espaces d'écriture du nom
+			for (int i=1; i<=playerNumber; i++){
+				nameFields.add(new JTextField("Name player " + i));
+				final JTextField nameField = nameFields.get(i-1);	//Pour vider le champ
+				nameField.addFocusListener(new FocusAdapter() {
+					public void focusGained(FocusEvent e){
+						nameField.setText("");
+					}
+				});
+				subPanel.add(nameFields.get(i-1));
+			}
 		
-		if (playerNumber == 2){
-		subPanel.add(name1Field);
-		subPanel.add(name2Field);
-		}
+		subPanel.add(validateButton);
+		validateButton.addActionListener(new ValidateActionListener(this,nameFields,playerNumber));
 		
-		else if (playerNumber == 3){
-			subPanel.add(name1Field);
-			subPanel.add(name2Field);
-			subPanel.add(name3Field);
-		}
-		
-		else if (playerNumber == 4){
-			subPanel.add(name1Field);
-			subPanel.add(name2Field);
-			subPanel.add(name3Field);
-			subPanel.add(name4Field);
-		}
-		JPanel subSubPanel = new JPanel();
-		subSubPanel.setLayout(new GridLayout(1,2));
-		subSubPanel.add(validateButton);
-		subSubPanel.add(homeButton);
-		subSubPanel.setOpaque(false);
-		
-		validateButton.addActionListener(new ValidateActionListener(this,name1Field,name2Field,name3Field,name4Field,playerNumber));
-		
-		subPanel.add(subSubPanel);
 		subPanel.revalidate();
 	}
 	
 	public void createPlayers(int playerNumber){
 		this.playerNumber = playerNumber;
+		System.out.println(playerNumber);
 		int[] posxList = {0,14,14,0};
 		int[] posyList = {0,14,0,14};
+		
 		for (int i=1;i <= playerNumber;i++){
 			playerList.add(new Player("skin"+String.valueOf(i)+".jpeg", nameList.get(i-1), posxList[i-1], posyList[i-1]));
 			System.out.println(i + ") " + playerList.get(i-1).getName());
@@ -284,7 +231,7 @@ public void keyTyped(KeyEvent e){}
 		this.revalidate();
 		board = new Board(playerList,this);
 		elementTable = board.getTable();
-		begin = true;
+		begin = 1;
 	}
 	
 	//Les getteurs
@@ -302,15 +249,31 @@ public void keyTyped(KeyEvent e){}
 		this.nameList.add(name);
 	}
 	
-		// Fonction qui va se charger de dessiner notre matrice
-	public void paintComponent(Graphics g){
+	public void resetName(){
+		this.nameList.clear();
+	}
+	
+	public void update(int xelem, int yelem, Element elem){  
+		this.xelem = xelem;
+		this.yelem = yelem;
+		this.elem = elem;
+	    this.repaint();
+	}
+	
+	public Board getBoard(){
+		return board;
+	}
+	
+	
+	// Fonction qui va se charger de dessiner notre matrice
+public void paintComponent(Graphics g){
 		
-		if (!begin){
+		if (begin==0){
 		ImageIcon img = new ImageIcon("Background.jpg");
 		super.paintComponent(g); 
 		img.paintIcon(this, g, 0, 0);
 		}
-		if (begin){
+		if (begin==1){
 			//Plateau de jeu
 			 this.setBackground(Color.white);
 			 for(int x = 0; x < elementTable.length; x++){
@@ -327,13 +290,5 @@ public void keyTyped(KeyEvent e){}
 				 }
 			 }
 		}
-	}
-	
-	public void update(){  
-	      this.repaint();
-	}
-	
-	public Board getBoard(){
-		return board;
 	}
 }

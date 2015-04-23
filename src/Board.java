@@ -6,7 +6,8 @@ public class Board {
 	private Element[][] elementTable = new Element[15][15];
 	private ArrayList<Player> playerList;
 	private int playerNumber;
-	GamePanel panel;
+	private GamePanel panel;
+
 	
 		// Constructeur par défaut
 	public Board(ArrayList<Player> playerList, GamePanel panel){
@@ -49,22 +50,9 @@ public class Board {
 		int[] posxList = {0,14,14,0};
 		int[] posyList = {0,14,0,14};
 		
-		if (playerNumber == 2){
-			elementTable[0][0] = playerList.get(0);
-			elementTable[14][14] = playerList.get(1);
+		for (int i=0; i< playerNumber; i++){
+			elementTable[posxList[i]][posyList[i]] = playerList.get(i);
 		}
-		if (playerNumber == 3){
-			elementTable[0][0] = playerList.get(0);
-			elementTable[14][14] = playerList.get(1);
-			elementTable[14][0] = playerList.get(2);
-		}
-		if (playerNumber == 4){
-			elementTable[0][0] = playerList.get(0);
-			elementTable[14][14] = playerList.get(1);
-			elementTable[14][0] = playerList.get(2);
-			elementTable[0][14] = playerList.get(3);
-		}
-	
 	}
 	
 	public Element[][] getTable(){
@@ -73,7 +61,7 @@ public class Board {
 	
 	public void setElemInBoard(int posx,int posy,Element a){
 		elementTable[posx][posy]=a;
-		panel.update();
+		panel.update(posx,posy,a);
 	}
 	public Element getElemInBoard(int posx,int posy){
 		return elementTable[posx][posy];
