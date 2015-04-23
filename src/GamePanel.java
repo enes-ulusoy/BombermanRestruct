@@ -25,7 +25,7 @@ public class GamePanel extends JPanel implements KeyListener{
 	private Board board;
 	private Element[][] elementTable;
 	private ArrayList<Player> playerList = new ArrayList<Player>();
-	int playerNumber;
+	private int playerNumber;
 	
 	private JPanel subPanel = new JPanel();	//Le panel qui va contenir les boutons
 	

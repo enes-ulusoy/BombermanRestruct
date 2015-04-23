@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 
-
+	// Plateau de jeu mis sous matrice
 public class Board {
 	
 	private Element[][] elementTable = new Element[15][15];
 	private ArrayList<Player> playerList;
-	int playerNumber;
+	private int playerNumber;
 	GamePanel panel;
 	
 		// Constructeur par défaut
@@ -46,6 +46,9 @@ public class Board {
 		null;
 		
 			//Place les joueurs
+		int[] posxList = {0,14,14,0};
+		int[] posyList = {0,14,0,14};
+		
 		if (playerNumber == 2){
 			elementTable[0][0] = playerList.get(0);
 			elementTable[14][14] = playerList.get(1);
